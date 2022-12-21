@@ -217,6 +217,8 @@ func ManufactureSink() (e EventSinkInterface) {
 		}
 		go eh.Run(make(chan bool))
 		return eh
+	case "null":
+		e = NewNullSink()
 	// case "logfile"
 	default:
 		err := errors.New("Invalid Sink Specified")

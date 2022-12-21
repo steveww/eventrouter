@@ -61,7 +61,7 @@ metadata:
 data:
   config.json: |- 
     {
-      "sink": "glog"
+      "sink": "null"
     }
 
 ---
