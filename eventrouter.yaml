@@ -84,9 +84,11 @@ spec:
         app: eventrouter
         tier: control-plane-addons
     spec:
+      serviceAccount: eventrouter
+      restartPolicy: Always
       containers:
         - name: kube-eventrouter
-          image: steveww/eventrouter:latest
+          image: steveww/eventrouter
           imagePullPolicy: Always
           ports:
             - name: http
@@ -94,7 +96,12 @@ spec:
           volumeMounts:
           - name: config-volume
             mountPath: /etc/eventrouter
-      serviceAccount: eventrouter
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
       volumes:
         - name: config-volume
           configMap:

@@ -61,6 +61,10 @@ func sigHandler() <-chan struct{} {
 	return stop
 }
 
+func healthCheck(w http.ResponseWriter, req *http.Request) {
+	w.Write([]byte("OK"))
+}
+
 // loadConfig will parse input + config file and return a clientset
 func loadConfig() kubernetes.Interface {
 	var config *rest.Config
@@ -124,6 +128,7 @@ func main() {
 	if viper.GetBool("enable-prometheus") {
 		go func() {
 			glog.Info("Starting prometheus metrics on port", *addr)
+			http.HandleFunc("/health", healthCheck)
 			http.Handle("/metrics", promhttp.Handler())
 			glog.Warning(http.ListenAndServe(*addr, nil))
 		}()
