@@ -19,6 +19,7 @@ REGISTRY ?= steveww
 VERSION ?= 0.0.1
 IMAGE = $(REGISTRY)/$(BIN)
 DOCKER ?= docker
+KUBECTL ?= kubectl
 DIR := ${CURDIR}
 
 ifneq ($(VERBOSE),)
@@ -47,13 +48,16 @@ push:
 		$(DOCKER) push $(REGISTRY)/$(TARGET):$(VERSION); \
 	fi
 
+deploy:
+	$(KUBECTL) apply -f eventrouter.yaml
+
 test:
 	$(DOCKER_BUILD) '$(TEST)'
 
 vet:
 	$(DOCKER_BUILD) '$(VET)'
 
-.PHONY: all local build image push
+.PHONY: all local build image push deploy
 
 clean:
 	rm -f $(TARGET)
