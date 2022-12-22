@@ -106,3 +106,23 @@ spec:
         - name: config-volume
           configMap:
             name: eventrouter-cm
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: eventrouter
+  labels:
+    release: prometheus
+  namespace: agent
+spec:
+  selector:
+    matchLabels:
+      app: eventrouter
+  namespaceSelector:
+    matchNames:
+      - agent
+  podMetricsEndpoints:
+    - port: http
+      path: /metrics
