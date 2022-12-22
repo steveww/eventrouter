@@ -39,7 +39,7 @@ push:
 	fi
 
 deploy:
-	$(KUBECTL) apply -f eventrouter.yaml
+	$(KUBECTL) apply -f manifests/eventrouter.yaml
 
 test:
 	go test ./...
