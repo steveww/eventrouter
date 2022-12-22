@@ -14,3 +14,10 @@ Good background information on watching Kubernetes [events](https://isitobservab
 * **NodeNotReady** - when a node cannot be used to run a pod because of an underlying issue
 * **Rebooted**
 * **HostPort Conflict**
+
+# TODO
+
+* Create some test programs to see how `log parser` works with event data
+* Filter events, only want type `warning`
+* Create a sink that formats the event into JSON and writes it to a [log parser](https://github.com/coroot/logparser)
+* Create Prometheus metric that includes `reason`, `message` and other data...
