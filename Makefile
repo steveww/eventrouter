@@ -13,24 +13,14 @@
 # limitations under the License.
 
 TARGET = eventrouter
-GOTARGET = github.com/heptiolabs/$(TARGET)
-BUILDMNT = /src/
 REGISTRY ?= steveww
 VERSION ?= 0.0.1
-IMAGE = $(REGISTRY)/$(BIN)
 DOCKER ?= docker
 KUBECTL ?= kubectl
 DIR := ${CURDIR}
 
-ifneq ($(VERBOSE),)
-VERBOSE_FLAG = -v
-endif
-TESTARGS ?= $(VERBOSE_FLAG) -timeout 60s
-TEST_PKGS ?= $(GOTARGET)/sinks/...
-TEST = go test $(TEST_PKGS) $(TESTARGS)
-VET_PKGS ?= $(GOTARGET)/...
-VET = go vet $(VET_PKGS)
 
+.PHONY: all build image push deploy test vet clean
 
 all: build
 
@@ -52,12 +42,11 @@ deploy:
 	$(KUBECTL) apply -f eventrouter.yaml
 
 test:
-	$(DOCKER_BUILD) '$(TEST)'
+	go test ./...
 
 vet:
-	$(DOCKER_BUILD) '$(VET)'
+	go vet ./...
 
-.PHONY: all local build image push deploy
 
 clean:
 	rm -f $(TARGET)
