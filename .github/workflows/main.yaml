@@ -59,7 +59,7 @@ jobs:
           tags: steveww/${{ env.REPO_NAME }}:PR-${{ env. PR_NUMBER }}
       
       - name: Set commit id
-        if: github.ref == 'refs/head/main'
+        if: github.ref == 'refs/heads/main'
         run: |
           SHORT_HASH=$(git rev-parse --short "$GITHUB_SHA")
           echo "SHORT_HASH=${SHORT_HASH}" >> $GITHUB_ENV
