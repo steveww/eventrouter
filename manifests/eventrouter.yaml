@@ -102,6 +102,13 @@ spec:
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 50Mi
+            limits:
+              cpu: 200m
+              memory: 100Mi
       volumes:
         - name: config-volume
           configMap:
