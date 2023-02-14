@@ -25,7 +25,8 @@ DIR := ${CURDIR}
 all: build
 
 build:
-	CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags "-X main.Version=$(VERSION)" -o $(TARGET)
+	mkdir bin
+	CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags "-X main.Version=$(VERSION)" -o bin/$(TARGET)
 
 image:
 	$(DOCKER) build -t $(REGISTRY)/$(TARGET) .
@@ -49,6 +50,6 @@ vet:
 
 
 clean:
-	rm -f $(TARGET)
-	$(DOCKER) rmi $(REGISTRY)/$(TARGET):latest
-	$(DOCKER) rmi $(REGISTRY)/$(TARGET):$(VERSION)
+	rm -rf bin
+	($(DOCKER) image rm $(REGISTRY)/$(TARGET):latest || true)
+	($(DOCKER) image rm $(REGISTRY)/$(TARGET):$(VERSION) || true)
