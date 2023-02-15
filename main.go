@@ -114,6 +114,8 @@ func loadConfig() kubernetes.Interface {
 func main() {
 	var wg sync.WaitGroup
 
+	glog.Info("Version ", Version)
+
 	clientset := loadConfig()
 	sharedInformers := informers.NewSharedInformerFactory(clientset, viper.GetDuration("resync-interval"))
 	eventsInformer := sharedInformers.Core().V1().Events()
@@ -121,8 +123,6 @@ func main() {
 	// TODO: Support locking for HA https://github.com/kubernetes/kubernetes/pull/42666
 	eventRouter := NewEventRouter(clientset, eventsInformer)
 	stop := sigHandler()
-
-	glog.Info("Version ", Version)
 
 	// Startup the http listener for Prometheus Metrics endpoint.
 	if viper.GetBool("enable-prometheus") {
