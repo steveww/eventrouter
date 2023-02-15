@@ -25,8 +25,8 @@ DIR := ${CURDIR}
 all: build
 
 build:
-	mkdir bin
-	CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags "-X main.Version=$(VERSION)" -o bin/$(TARGET)
+	mkdir -p bin
+	go build -ldflags "-X main.Version=$(VERSION)" -o bin/$(TARGET)
 
 image:
 	$(DOCKER) build -t $(REGISTRY)/$(TARGET) .
