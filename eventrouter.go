@@ -83,6 +83,16 @@ func NewEventRouter(kubeClient kubernetes.Interface, eventsInformer coreinformer
 		prometheus.MustRegister(kubernetesNormalEventCounterVec)
 		prometheus.MustRegister(kubernetesInfoEventCounterVec)
 		prometheus.MustRegister(kubernetesUnknownEventCounterVec)
+
+		g := prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "version_info",
+			Help: "Version information",
+			ConstLabels: prometheus.Labels{
+				"version": Version,
+			},
+		})
+		prometheus.MustRegister(g)
+		g.Set(1)
 	}
 
 	er := &EventRouter{

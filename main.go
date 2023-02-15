@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -114,7 +115,7 @@ func loadConfig() kubernetes.Interface {
 func main() {
 	var wg sync.WaitGroup
 
-	glog.Info("Version ", Version)
+	fmt.Println("Version ", Version)
 
 	clientset := loadConfig()
 	sharedInformers := informers.NewSharedInformerFactory(clientset, viper.GetDuration("resync-interval"))
