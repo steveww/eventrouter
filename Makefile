@@ -14,7 +14,7 @@
 
 TARGET = eventrouter
 REGISTRY ?= steveww
-VERSION ?= 0.0.1
+VERSION = $(shell git describe --tags)
 DOCKER ?= docker
 KUBECTL ?= kubectl
 DIR := ${CURDIR}
