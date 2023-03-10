@@ -17,6 +17,7 @@ Good background information on watching Kubernetes [events](https://isitobservab
 
 # TODO
 
+* Tidy up Stdout sink, namespace not needed. See glog.
 * Create some test programs to see how `log parser` works with event data
 * Filter events, only want type `warning`
 * Create a sink that formats the event into JSON and writes it to a [log parser](https://github.com/coroot/logparser)
