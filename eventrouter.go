@@ -18,7 +18,7 @@ import (
 
 var (
 	kubernetesWarningEventCounterVec = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "asserts_eventrouter_warnings_total",
+		Name: "eventrouter_warnings_total",
 		Help: "Total number of warning events in the kubernetes cluster",
 	}, []string{
 		"involved_object_kind",
@@ -28,7 +28,7 @@ var (
 		"source",
 	})
 	kubernetesNormalEventCounterVec = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "asserts_eventrouter_normal_total",
+		Name: "eventrouter_normal_total",
 		Help: "Total number of normal events in the kubernetes cluster",
 	}, []string{
 		"involved_object_kind",
@@ -38,7 +38,7 @@ var (
 		"source",
 	})
 	kubernetesInfoEventCounterVec = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "asserts_eventrouter_info_total",
+		Name: "eventrouter_info_total",
 		Help: "Total number of info events in the kubernetes cluster",
 	}, []string{
 		"involved_object_kind",
@@ -48,7 +48,7 @@ var (
 		"source",
 	})
 	kubernetesUnknownEventCounterVec = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "asserts_eventrouter_unknown_total",
+		Name: "eventrouter_unknown_total",
 		Help: "Total number of events of unknown type in the kubernetes cluster",
 	}, []string{
 		"involved_object_kind",
