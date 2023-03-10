@@ -26,36 +26,7 @@ var (
 		"involved_object_namespace",
 		"reason",
 		"source",
-	})
-	kubernetesNormalEventCounterVec = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "eventrouter_normal_total",
-		Help: "Total number of normal events in the kubernetes cluster",
-	}, []string{
-		"involved_object_kind",
-		"involved_object_name",
-		"involved_object_namespace",
-		"reason",
-		"source",
-	})
-	kubernetesInfoEventCounterVec = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "eventrouter_info_total",
-		Help: "Total number of info events in the kubernetes cluster",
-	}, []string{
-		"involved_object_kind",
-		"involved_object_name",
-		"involved_object_namespace",
-		"reason",
-		"source",
-	})
-	kubernetesUnknownEventCounterVec = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "eventrouter_unknown_total",
-		Help: "Total number of events of unknown type in the kubernetes cluster",
-	}, []string{
-		"involved_object_kind",
-		"involved_object_name",
-		"involved_object_namespace",
-		"reason",
-		"source",
+		"message",
 	})
 )
 
@@ -80,9 +51,6 @@ type EventRouter struct {
 func NewEventRouter(kubeClient kubernetes.Interface, eventsInformer coreinformers.EventInformer) *EventRouter {
 	if viper.GetBool("enable-prometheus") {
 		prometheus.MustRegister(kubernetesWarningEventCounterVec)
-		prometheus.MustRegister(kubernetesNormalEventCounterVec)
-		prometheus.MustRegister(kubernetesInfoEventCounterVec)
-		prometheus.MustRegister(kubernetesUnknownEventCounterVec)
 
 		g := prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "version_info",
@@ -147,46 +115,24 @@ func prometheusEvent(event *v1.Event) {
 	var counter prometheus.Counter
 	var err error
 
-	switch event.Type {
-	case "Normal":
-		counter, err = kubernetesNormalEventCounterVec.GetMetricWithLabelValues(
-			event.InvolvedObject.Kind,
-			event.InvolvedObject.Name,
-			event.InvolvedObject.Namespace,
-			event.Reason,
-			event.Source.Host,
-		)
-	case "Warning":
+	if event.Type == "Warning" {
+		// limit the length of messages
+		message := substr(event.Message, 0, 50)
 		counter, err = kubernetesWarningEventCounterVec.GetMetricWithLabelValues(
 			event.InvolvedObject.Kind,
 			event.InvolvedObject.Name,
 			event.InvolvedObject.Namespace,
 			event.Reason,
 			event.Source.Host,
+			message,
 		)
-	case "Info":
-		counter, err = kubernetesInfoEventCounterVec.GetMetricWithLabelValues(
-			event.InvolvedObject.Kind,
-			event.InvolvedObject.Name,
-			event.InvolvedObject.Namespace,
-			event.Reason,
-			event.Source.Host,
-		)
-	default:
-		counter, err = kubernetesUnknownEventCounterVec.GetMetricWithLabelValues(
-			event.InvolvedObject.Kind,
-			event.InvolvedObject.Name,
-			event.InvolvedObject.Namespace,
-			event.Reason,
-			event.Source.Host,
-		)
-	}
 
-	if err != nil {
-		// Not sure this is the right place to log this error?
-		glog.Warning(err)
-	} else {
-		counter.Add(1)
+		if err != nil {
+			// Not sure this is the right place to log this error?
+			glog.Warning(err)
+		} else {
+			counter.Add(1)
+		}
 	}
 }
 
@@ -196,4 +142,18 @@ func (er *EventRouter) deleteEvent(obj interface{}) {
 	// NOTE: This should *only* happen on TTL expiration there
 	// is no reason to push this to a sink
 	glog.V(5).Infof("Event Deleted from the system:\n%v", e)
+}
+
+func substr(input string, start int, length int) string {
+	asRunes := []rune(input)
+
+	if start >= len(asRunes) {
+		return ""
+	}
+
+	if start+length > len(asRunes) {
+		length = len(asRunes) - start
+	}
+
+	return string(asRunes[start : start+length])
 }
