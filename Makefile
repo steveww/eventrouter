@@ -34,10 +34,6 @@ image:
 
 push:
 	$(DOCKER) push $(REGISTRY)/$(TARGET)
-	if git describe --tags --exact-match >/dev/null 2>&1; \
-	then \
-		$(DOCKER) push $(REGISTRY)/$(TARGET):$(VERSION); \
-	fi
 
 deploy:
 	$(KUBECTL) apply -f manifests/eventrouter.yaml
