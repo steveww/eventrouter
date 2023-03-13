@@ -79,6 +79,7 @@ func loadConfig() kubernetes.Interface {
 	viper.SetConfigName("config")
 	viper.AddConfigPath("/etc/eventrouter/")
 	viper.AddConfigPath(".")
+	viper.SetDefault("stdoutJSONNamespace", "eventrouter")
 	viper.SetDefault("kubeconfig", "")
 	viper.SetDefault("sink", "glog")
 	viper.SetDefault("resync-interval", time.Minute*30)
@@ -147,5 +148,6 @@ func main() {
 	sharedInformers.Start(stop)
 	wg.Wait()
 	glog.Warningf("Exiting main()")
+	glog.Flush()
 	os.Exit(1)
 }

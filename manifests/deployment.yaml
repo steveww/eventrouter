@@ -18,8 +18,12 @@ spec:
       serviceAccount: eventrouter
       restartPolicy: Always
       containers:
-        - name: kube-eventrouter
+        - name: eventrouter
           image: steveww/eventrouter
+          args:
+            - "-v"
+            - "3"
+            - "-logtostderr"
           imagePullPolicy: Always
           ports:
             - name: http

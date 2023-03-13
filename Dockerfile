@@ -14,10 +14,11 @@
 
 FROM debian:11-slim
 
+EXPOSE 8080
 WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y ca-certificates
 ADD bin/eventrouter /app/
 USER nobody:nogroup
 
-ENTRYPOINT ["/app/eventrouter", "-v", "3", "-logtostderr"]
+ENTRYPOINT ["/app/eventrouter"]
