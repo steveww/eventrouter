@@ -141,7 +141,8 @@ func (er *EventRouter) deleteEvent(obj interface{}) {
 	e := obj.(*v1.Event)
 	// NOTE: This should *only* happen on TTL expiration there
 	// is no reason to push this to a sink
-	glog.V(5).Infof("Event Deleted from the system:\n%v", e)
+	//glog.V(5).Infof("Event Deleted from the system:\n%v", e)
+	glog.Infof("Event Deleted from the system:\n%v", e)
 }
 
 func substr(input string, start int, length int) string {
