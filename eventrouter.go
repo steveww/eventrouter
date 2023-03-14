@@ -162,9 +162,8 @@ func unregisterEvent(event *v1.Event) {
 	if err != nil {
 		glog.Warning(err)
 	} else {
-		if ok := prometheus.Unregister(counter); !ok {
-			glog.Warningf("unregister not OK %v", message)
-		}
+		// returns false if not registered - don't care
+		prometheus.Unregister(counter)
 	}
 }
 
