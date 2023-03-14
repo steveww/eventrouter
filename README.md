@@ -18,4 +18,4 @@ Good background information on watching Kubernetes [events](https://isitobservab
 # TODO
 
 * Investigate possible pruning options for `message` to reduce cardinality.
-* Delete event remotes Prometheus metric label set - tricky
+* Delete event removes Prometheus metric label set - Use `prometheus.Unregister(counter)`

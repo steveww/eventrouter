@@ -95,16 +95,29 @@ func (er *EventRouter) Run(stopCh <-chan struct{}) {
 // addEvent is called when an event is created, or during the initial list
 func (er *EventRouter) addEvent(obj interface{}) {
 	e := obj.(*v1.Event)
-	prometheusEvent(e)
-	er.eSink.UpdateEvents(e, nil)
+	if e.Type == "Warning" {
+		prometheusEvent(e)
+		er.eSink.UpdateEvents(e, nil)
+	}
 }
 
 // updateEvent is called any time there is an update to an existing event
 func (er *EventRouter) updateEvent(objOld interface{}, objNew interface{}) {
 	eOld := objOld.(*v1.Event)
 	eNew := objNew.(*v1.Event)
-	prometheusEvent(eNew)
-	er.eSink.UpdateEvents(eNew, eOld)
+	if eNew.Type == "Warning" {
+		prometheusEvent(eNew)
+		er.eSink.UpdateEvents(eNew, eOld)
+	}
+}
+
+// deleteEvent should only occur when the system garbage collects events via TTL expiration
+// NOTE: This should *only* happen on TTL expiration there
+func (er *EventRouter) deleteEvent(obj interface{}) {
+	e := obj.(*v1.Event)
+	if e.Type == "Warning" {
+		unregisterEvent(e)
+	}
 }
 
 // prometheusEvent is called when an event is added or updated
@@ -112,37 +125,47 @@ func prometheusEvent(event *v1.Event) {
 	if !viper.GetBool("enable-prometheus") {
 		return
 	}
-	var counter prometheus.Counter
-	var err error
 
-	if event.Type == "Warning" {
-		// limit the length of messages
-		message := substr(event.Message, 0, 50)
-		counter, err = kubernetesWarningEventCounterVec.GetMetricWithLabelValues(
-			event.InvolvedObject.Kind,
-			event.InvolvedObject.Name,
-			event.InvolvedObject.Namespace,
-			event.Reason,
-			event.Source.Host,
-			message,
-		)
+	// limit the length of messages
+	message := substr(event.Message, 0, 50)
+	counter, err := kubernetesWarningEventCounterVec.GetMetricWithLabelValues(
+		event.InvolvedObject.Kind,
+		event.InvolvedObject.Name,
+		event.InvolvedObject.Namespace,
+		event.Reason,
+		event.Source.Host,
+		message,
+	)
 
-		if err != nil {
-			// Not sure this is the right place to log this error?
-			glog.Warning(err)
-		} else {
-			counter.Add(1)
-		}
+	if err != nil {
+		// Not sure this is the right place to log this error?
+		glog.Warning(err)
+	} else {
+		counter.Add(1)
 	}
 }
 
-// deleteEvent should only occur when the system garbage collects events via TTL expiration
-func (er *EventRouter) deleteEvent(obj interface{}) {
-	e := obj.(*v1.Event)
-	// NOTE: This should *only* happen on TTL expiration there
-	// is no reason to push this to a sink
-	//glog.V(5).Infof("Event Deleted from the system:\n%v", e)
-	glog.Infof("Event Deleted from the system:\n%v", e)
+func unregisterEvent(event *v1.Event) {
+	if !viper.GetBool("enable-prometheus") {
+		return
+	}
+
+	message := substr(event.Message, 0, 50)
+	counter, err := kubernetesWarningEventCounterVec.GetMetricWithLabelValues(
+		event.InvolvedObject.Kind,
+		event.InvolvedObject.Name,
+		event.InvolvedObject.Namespace,
+		event.Reason,
+		event.Source.Host,
+		message,
+	)
+	if err != nil {
+		glog.Warning(err)
+	} else {
+		if ok := prometheus.Unregister(counter); !ok {
+			glog.Warning("unregister not OK")
+		}
+	}
 }
 
 func substr(input string, start int, length int) string {
