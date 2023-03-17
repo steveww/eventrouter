@@ -21,8 +21,6 @@ spec:
         - name: eventrouter
           image: steveww/eventrouter
           args:
-            - "-v"
-            - "3"
             - "-logtostderr"
           imagePullPolicy: Always
           ports:
