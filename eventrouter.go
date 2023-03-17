@@ -141,7 +141,7 @@ func prometheusEvent(event *v1.Event) {
 		// Not sure this is the right place to log this error?
 		glog.Warning(err)
 	} else {
-		counter.Add(1)
+		counter.Inc()
 	}
 }
 
@@ -151,7 +151,7 @@ func unregisterEvent(event *v1.Event) {
 	}
 
 	message := substr(event.Message, 0, 50)
-	counter, err := kubernetesWarningEventCounterVec.GetMetricWithLabelValues(
+	kubernetesWarningEventCounterVec.DeleteLabelValues(
 		event.InvolvedObject.Kind,
 		event.InvolvedObject.Name,
 		event.InvolvedObject.Namespace,
@@ -159,12 +159,6 @@ func unregisterEvent(event *v1.Event) {
 		event.Source.Host,
 		message,
 	)
-	if err != nil {
-		glog.Warning(err)
-	} else {
-		// returns false if not registered - don't care
-		prometheus.Unregister(counter)
-	}
 }
 
 func substr(input string, start int, length int) string {
